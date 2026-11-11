@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Time Recorder 2.0 (Timer 2.0) — Hand of Glory Games and Software</title>
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --card: #151a24;
+      --card-alt: #1b2230;
+      --text: #e6edf3;
+      --muted: #94a3b8;
+      --accent: #f59e0b;
+      --accent-hover: #fbbf24;
+      --cyan: #38bdf8;
+      --border: #2c3545;
+      --glow: rgba(245, 158, 11, 0.25);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 50% 0%, #1e1b2e 0%, var(--bg) 55%);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    .hero {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 36px;
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 52px 24px 40px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .logo-frame {
+      position: relative;
+      padding: 6px;
+      border-radius: 18px;
+      background: linear-gradient(135deg, #f59e0b, #38bdf8, #f59e0b);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.7), 0 0 28px var(--glow);
+    }
+
+    .logo-frame img {
+      display: block;
+      width: 220px;
+      height: auto;
+      border-radius: 13px;
+    }
+
+    .brand {
+      color: var(--accent);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 13px;
+    }
+
+    h1 {
+      margin: 8px 0 12px;
+      font-size: 38px;
+      line-height: 1.15;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 20px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 11px;
+      font-size: 12px;
+      font-weight: 600;
+      border-radius: 999px;
+      background: var(--card-alt);
+      border: 1px solid var(--border);
+      color: var(--accent);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 22px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 15px;
+      text-decoration: none;
+      transition: transform 0.12s ease, box-shadow 0.12s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #111827;
+      box-shadow: 0 8px 24px var(--glow);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--card-alt);
+      color: var(--text);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-ghost {
+      background: var(--card);
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .container {
+      max-width: 1140px;
+      margin: 0 auto;
+      padding: 36px 24px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(310px, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      color: var(--accent);
+    }
+
+    code,
+    pre {
+      font-family: 'Cascadia Code', Consolas, monospace;
+      background: #080b10;
+      border-radius: 6px;
+    }
+
+    code {
+      padding: 2px 6px;
+      font-size: 13px;
+      color: #fcd34d;
+    }
+
+    pre {
+      padding: 14px;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    pre code {
+      color: var(--text);
+      padding: 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13.5px;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--border);
+      padding: 9px 10px;
+      text-align: left;
+    }
+
+    th {
+      color: var(--accent);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 34px 16px;
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hero">
+    <div class="logo-frame">
+      <img src="splash.jpg" alt="Hand of Glory Games and Software Splash Logo" />
+    </div>
+    <div style="flex:1;min-width:290px">
+      <div class="brand">Hand of Glory Games and Software &bull; Zak Millikin (Zakskywalker M_A.P.)</div>
+      <h1>Time Recorder 2.0 (Timer 2.0)</h1>
+      <div class="badge-row">
+        <span class="badge" id="version-badge">Version 2.0.0 &bull; Windows 11 x64 (.NET 10)</span>
+        <span class="badge">Windows 11 Setup Wizard</span>
+        <span class="badge">ClickOnce Auto-Updater</span>
+        <span class="badge">Auto-Heal Crash Recovery</span>
+        <span class="badge">Phone-Bar Dock &amp; MySQL Sync</span>
+        <span class="badge">Google Chrome Activity</span>
+      </div>
+      <p style="color:var(--muted);font-size:15.5px;margin:0">
+        High-precision Windows Forms time recording and tracking system with
+        <strong>fault-tolerant auto-healing logs</strong>, <strong>notification tray live runtime badges</strong>,
+        <strong>stretchable &amp; slim Phone-Bar docking</strong>, <strong>Google Chrome activity recording</strong>,
+        <strong>dual-table MySQL sync &amp; compare</strong>, and <strong>interactive Dark/Light HTML reports</strong>.
+      </p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="https://github.com/Zakskywalker/timer_2/releases/latest/download/TimeRecorder_2.0_Setup.exe">&#11015; Download Windows 11 Installer (TimeRecorder_2.0_Setup.exe)</a>
+        <a class="btn btn-secondary" href="./setup.exe">&#9881; Install or Update via ClickOnce (setup.exe)</a>
+        <a class="btn btn-ghost" href="https://github.com/Zakskywalker/timer_2">GitHub Repository</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <h2>Install, Auto-Update &amp; Core Capabilities</h2>
+    <div class="grid">
+      <div class="card">
+        <h3>1. Windows 11 Installer &amp; ClickOnce Auto-Updater</h3>
+        <p>Download <a href="https://github.com/Zakskywalker/timer_2/releases/latest/download/TimeRecorder_2.0_Setup.exe"><code>TimeRecorder_2.0_Setup.exe</code></a>
+          for the full Windows 11 Setup Wizard (Desktop &amp; Start Menu shortcuts, optional auto-start, and Registered Apps uninstaller),
+          or install via <a href="./setup.exe"><code>setup.exe</code></a> for automatic background ClickOnce updates.
+          Your local timer logs stay untouched across updates.</p>
+      </div>
+      <div class="card">
+        <h3>2. Auto-Healing Logs, Tray Badges &amp; Phone-Bar Mode</h3>
+        <p>Checkpoints active sessions every few seconds and automatically prompts to resume, close at the last
+          timestamp, or discard interrupted sessions after a reboot or power loss. Resize narrower than
+          <code>400px</code> to snap into a compact <strong>2&times;2 Phone-Bar widget</strong> beside your active work window.</p>
+      </div>
+      <div class="card">
+        <h3>3. Google Chrome Activity Logging &amp; MySQL Dual-Table Sync</h3>
+        <p>Record active Chrome window and tab titles alongside work timer runs, plus a <strong>Database Sync &amp; Compare Panel</strong>
+          (<code>timer_sessions</code> &amp; <code>timer_system_logs</code>) with color-coded diff statuses
+          (<code>To Upload</code>, <code>Modified</code>, <code>In Sync</code>, <code>In DB Only</code>).</p>
+      </div>
+    </div>
+
+    <h2 style="margin-top:36px">Quick Run, Build &amp; Test Commands</h2>
+    <pre><code># Build &amp; Run all 17 automated tests
+dotnet build Timer20.slnx --configuration Release
+dotnet test Timer20.slnx --configuration Release
+
+# Launch Time Recorder 2.0 directly from source
+dotnet run --project src/Timer2.App/Timer2.App.csproj
+
+# Launch the Windows 11 GUI Setup Wizard or build the standalone distribution bundle
+dotnet run --project src/Timer2.Installer/Timer2.Installer.csproj
+powershell -ExecutionPolicy Bypass -File .\installer\build_installer.ps1</code></pre>
+
+    <h2 style="margin-top:36px">Time Formats, Themes &amp; Export Summary</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Options / Formats</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>One-Click Copy Formats</strong></td>
+          <td><code>H:P</code> (<code>4.25 hrs</code>) &bull; <code>H:M</code> (<code>4 Hrs. 15 Min.</code>)</td>
+          <td>Copy today's running or completed total directly to the clipboard in decimal hours or hours/minutes</td>
+        </tr>
+        <tr>
+          <td><strong>Dynamic Themes</strong></td>
+          <td><code>Dark</code> &bull; <code>Light</code> &bull; <code>Cyber Green</code> &bull; <code>Midnight</code> &bull; <code>Obsidian</code></td>
+          <td>Instant live theme switching across the main timer, Chrome Activity, Log Viewer, and DB Sync dialogs</td>
+        </tr>
+        <tr>
+          <td><strong>Interactive HTML Reports</strong></td>
+          <td><code>DarkHtmlTemplate</code> &bull; <code>LightHtmlTemplate</code></td>
+          <td>Exports multi-day session breakdowns with sticky summary headers, anomaly indicators, and Chrome activity correlation</td>
+        </tr>
+        <tr>
+          <td><strong>Protected Log Isolation</strong></td>
+          <td><code>time.txt</code>, <code>log.txt</code>, <code>changes.txt</code></td>
+          <td>Stored in your local log folder; CI/CD enforces a strict guard so personal logs are never published</td>
+        </tr>
+      </tbody>
+    </table>
+  </main>
+
+  <footer>
+    Hand of Glory Games and Software &bull; Creator &amp; Architect: <strong>Zak Millikin (Zakskywalker M_A.P.)</strong> &bull;
+    AI Pair Programmers: <strong>Google DeepMind Antigravity (Claude Opus &amp; Gemini)</strong> &bull;
+    Splash Image Artwork: <a href="https://perchance.org/cursed-ai">Perchance AI (Cursed)</a> &bull;
+    <a href="https://www.gnu.org/licenses/gpl-3.0.html">GNU General Public License v3.0</a>
+  </footer>
+
+  <script>
+    fetch('./version.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.version) {
+          const el = document.getElementById('version-badge');
+          if (el) el.textContent = 'Version ' + data.version + ' \u2022 Windows 11 x64 (.NET 10)';
+        }
+      })
+      .catch(() => { });
+  </script>
+</body>
+
+</html>

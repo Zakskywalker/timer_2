@@ -54,6 +54,14 @@ jobs:
             throw "ClickOnce output unexpectedly contains timer log data: $($publishedLogs.FullName -join ', ')"
           }
           Copy-Item .github/pages/index.html clickonce/index.html
+          Copy-Item .github/pages/splash.jpg clickonce/splash.jpg -Force
+          $versionJson = @{
+            version = $version
+            publishedAt = (Get-Date).ToUniversalTime().ToString("o")
+            setupUrl = "https://zakskywalker.github.io/timer_2/setup.exe"
+            installerUrl = "https://github.com/Zakskywalker/timer_2/releases/latest/download/TimeRecorder_2.0_Setup.exe"
+          } | ConvertTo-Json
+          Set-Content -Path clickonce/version.json -Value $versionJson -Encoding UTF8
           New-Item -ItemType File -Path clickonce/.nojekyll -Force | Out-Null
 
       - name: Publish standalone Windows installer

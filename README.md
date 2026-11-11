@@ -1,5 +1,11 @@
 # Time Recorder 2.0 (Timer 2.0)
 
+<p align="center">
+  <img src="assets/splash.jpg" alt="Hand of Glory Games and Software Splash Logo" width="240" />
+</p>
+
+**Hand of Glory Games and Software** • **Author:** Zak Millikin (Zakskywalker M_A.P.) • **License:** [GNU GPL v3.0](https://www.gnu.org/licenses/gpl-3.0.html)
+
 A modern, high-precision .NET Windows Forms time recording and tracking system featuring fault-tolerant auto-healing logging, notification tray integration, dynamic theme switching, dual-table MySQL sync and compare panel, responsive stretchable and "phone bar" docking layout, Chrome activity recording, and interactive HTML reporting with sticky summaries.
 
 Licensed under the **GNU General Public License v3 (GPLv3)**.
@@ -124,3 +130,52 @@ The CI workflow runs the test suite and, on pushes to `main`, publishes a self-c
 Download and open `TimeRecorder_2.0_Setup.exe` to install. The setup executable includes the application payload; do not download or open `Timer2.App.application` separately. Each push to `main` publishes a new installer and app update. Installed standalone copies show a startup splash while checking GitHub Releases and automatically download and apply a newer app version when available.
 
 The workflow also keeps publishing the ClickOnce deployment for existing ClickOnce installations. Those installations check for updates in the background after launch. Timer data stays in the configured log folder (by default, `%USERPROFILE%\Documents\TimerLogs`) and is not included in the installer.
+
+
+---
+
+## Versioning & Pre-Submit Checklist (Before Pushing to GitHub)
+
+### 1. Versioning Architecture
+- **Current Release Line:** `2.0.0` (`Major.Minor.Patch`), configured centrally in the project files.
+- **Automated ClickOnce & GitHub Releases Build Version:** `2.0.<GITHUB_RUN_NUMBER>.<GITHUB_RUN_ATTEMPT>`.
+  - On every push to `main`, `.github/workflows/clickonce-pages.yml` builds, publishes the ClickOnce site, builds the standalone self-extracting Windows installer (`TimeRecorder_2.0_Setup.exe`), publishes an automated GitHub Release, and writes the deployment metadata to `clickonce/version.json`.
+  - Installed standalone copies show a startup splash while checking GitHub Releases and automatically download and apply a newer app version when available.
+- **Files to Update When Bumping `Major.Minor.Patch` (e.g., `2.0.0` -> `2.1.0`):**
+  1. `src/Timer2.App/Timer2.App.csproj` and `src/Timer2.Installer/Timer2.Installer.csproj` — `<Version>2.1.0</Version>`
+  2. `.github/workflows/clickonce-pages.yml` — `$version = "2.1.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"`
+  3. `docs/version.json` — `"version": "2.1.0"`
+  4. `.github/pages/index.html` and `docs/index.html` version badges
+
+### 2. Pre-Push / Pre-Submit Checklist
+Before committing and pushing changes to GitHub (`origin/main`), run through these steps:
+
+```powershell
+# Step 1: Run the full unit test suite in Release mode and ensure all 17 tests pass
+dotnet test Timer20.slnx --configuration Release
+
+# Step 2: Build the standalone installer payload and verify it packages successfully
+dotnet publish src/Timer2.App/Timer2.App.csproj -c Release -r win-x64 --self-contained true
+dotnet publish src/Timer2.Installer/Timer2.Installer.csproj -c Release -r win-x64 --self-contained true
+
+# Step 3: Inspect git status to ensure no log files (time.txt, log.txt, settings.txt) are staged
+git status
+```
+
+- **Guard Protected Log Data:** Under no circumstances should user runtime files (`time.txt`, `log.txt`, `log2.txt`, `changes.txt`, `temp.txt`, `settings.txt`) or personal log directories (`TimerLogs`) be staged or checked into Git. The workflow has built-in verification gates that will abort the publish run if any timer log data is detected in the payload.
+- **Push and Verify CI/CD:**
+  ```powershell
+  git add -A
+  git commit -m "Describe your change"
+  git push origin main
+  gh run list --repo Zakskywalker/timer_2 --limit 3
+  ```
+
+---
+
+## Credits & Attribution
+
+- **Creator & Lead Architect:** Zak Millikin (**Zakskywalker M_A.P.**) — *Hand of Glory Games and Software*
+- **AI Pair Programmers:** Google DeepMind **Antigravity** (*Claude Opus* & *Gemini*)
+- **Splash Screen Artwork:** [**Perchance AI (Cursed)**](https://perchance.org/cursed-ai)
+- **License:** [GNU General Public License v3.0 (GPL-3.0-or-later)](https://www.gnu.org/licenses/gpl-3.0.html)
