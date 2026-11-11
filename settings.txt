@@ -1,0 +1,2 @@
+*Location: C:\Users\whitn\Documents\TimerLogs
+*SaveLoc: true

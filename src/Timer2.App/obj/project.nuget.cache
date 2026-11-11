@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "P0fhVpVtBjk=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\src\\Timer2.App\\Timer2.App.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\mysqlconnector\\2.6.2\\mysqlconnector.2.6.2.nupkg.sha512"
+  ],
+  "logs": []
+}

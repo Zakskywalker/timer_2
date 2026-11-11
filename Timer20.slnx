@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Timer2.App/Timer2.App.csproj" />
+    <Project Path="src/Timer2.Core/Timer2.Core.csproj" />
+    <Project Path="src/Timer2.Installer/Timer2.Installer.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Timer2.Tests/Timer2.Tests.csproj" />
+  </Folder>
+</Solution>
