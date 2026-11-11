@@ -115,6 +115,6 @@ The CI workflow runs the test suite and, on pushes to `main`, publishes a self-c
 
 <https://zakskywalker.github.io/timer_2/>
 
-Download and open `TimeRecorder_2.0_Setup.exe` to install. The setup executable includes the application payload; do not download or open `Timer2.App.application` separately. Each push to `main` publishes a new installer release.
+Download and open `TimeRecorder_2.0_Setup.exe` to install. The setup executable includes the application payload; do not download or open `Timer2.App.application` separately. Each push to `main` publishes a new installer and app update. Installed standalone copies show a startup splash while checking GitHub Releases and automatically download and apply a newer app version when available.
 
-The workflow also keeps publishing the ClickOnce deployment for existing ClickOnce installations. Those installations check for updates in the background after launch; the app displays its splash screen while starting. Timer data stays in the configured log folder (by default, `%USERPROFILE%\Documents\TimerLogs`) and is not included in the installer.
+The workflow also keeps publishing the ClickOnce deployment for existing ClickOnce installations. Those installations check for updates in the background after launch. Timer data stays in the configured log folder (by default, `%USERPROFILE%\Documents\TimerLogs`) and is not included in the installer.

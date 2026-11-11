@@ -60,13 +60,32 @@ jobs:
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
         shell: pwsh
         run: |
+          $version = "2.0.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
+          dotnet publish src/Timer2.App/Timer2.App.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            "-p:PublishSingleFile=true" `
+            "-p:IncludeNativeLibrariesForSelfExtract=true" `
+            "-p:Version=$version" `
+            --output "$env:GITHUB_WORKSPACE\standalone-app"
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          $appPath = "$env:GITHUB_WORKSPACE\standalone-app\Timer2.App.exe"
+          if (-not (Test-Path $appPath)) {
+            throw "Standalone application was not produced at $appPath."
+          }
+          Copy-Item $appPath "$env:GITHUB_WORKSPACE\TimeRecorder_2.0_App.exe"
+
           dotnet publish src/Timer2.Installer/Timer2.Installer.csproj `
             --configuration Release `
             --runtime win-x64 `
             --self-contained true `
             "-p:PublishSingleFile=true" `
             "-p:IncludeNativeLibrariesForSelfExtract=true" `
-            "-p:Version=2.0.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT" `
+            "-p:InstallerPayloadPath=$appPath" `
+            "-p:Version=$version" `
             --output "$env:GITHUB_WORKSPACE\standalone-installer"
           if ($LASTEXITCODE -ne 0) {
             exit $LASTEXITCODE
@@ -85,7 +104,9 @@ jobs:
           name: Time Recorder 2.0 (build ${{ github.run_number }}.${{ github.run_attempt }})
           target_commitish: main
           make_latest: true
-          files: TimeRecorder_2.0_Setup.exe
+          files: |
+            TimeRecorder_2.0_Setup.exe
+            TimeRecorder_2.0_App.exe
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
