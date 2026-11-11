@@ -107,3 +107,13 @@ dotnet run --project timer_2_0/src/Timer2.App/Timer2.App.csproj
 ```powershell
 powershell -ExecutionPolicy Bypass -File timer_2_0/installer/install_windows11.ps1
 ```
+
+### ClickOnce Updates from GitHub Pages
+
+The `ClickOnce CI/CD` workflow runs the test suite for pull requests and publishes a self-contained Windows x64 ClickOnce installer to GitHub Pages whenever changes are pushed to `main`. The published setup page is:
+
+<https://zakskywalker.github.io/timer_2/>
+
+To enable deployment, open the repository's **Settings > Pages** and set **Build and deployment > Source** to **GitHub Actions**. Install with `setup.exe` from that page. ClickOnce checks for updates when the installed application starts; each successful deployment publishes a higher application version.
+
+The Pages artifact contains only the ClickOnce application and installer files; the workflow fails if it finds `time.txt`, `log.txt`, `log2.txt`, `changes.txt`, `temp.txt`, or `settings.txt` in the published output. Timer data stays in the configured log folder (by default, `%USERPROFILE%\Documents\TimerLogs`) and is not included in or replaced by an application update.

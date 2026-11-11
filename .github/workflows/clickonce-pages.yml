@@ -1,0 +1,91 @@
+name: ClickOnce CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: clickonce-pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Run tests
+        run: dotnet test Timer20.slnx --configuration Release
+
+      - name: Publish ClickOnce application
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $version = "2.0.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT"
+          msbuild src/Timer2.App/Timer2.App.csproj `
+            /restore `
+            /target:Publish `
+            "/property:Configuration=Release" `
+            "/property:PublishProfile=GitHubPages" `
+            "/property:ApplicationVersion=$version" `
+            "/property:PublishDir=$env:GITHUB_WORKSPACE\clickonce\"
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          $protectedLogNames = @("time.txt", "log.txt", "log2.txt", "changes.txt", "temp.txt", "settings.txt")
+          $publishedLogs = Get-ChildItem clickonce -Recurse -File |
+            Where-Object { $protectedLogNames -contains $_.Name }
+          if ($publishedLogs) {
+            throw "ClickOnce output unexpectedly contains timer log data: $($publishedLogs.FullName -join ', ')"
+          }
+          Copy-Item .github/pages/index.html clickonce/index.html
+          New-Item -ItemType File -Path clickonce/.nojekyll -Force | Out-Null
+
+      - name: Upload ClickOnce site
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: clickonce-site
+          path: clickonce/
+          if-no-files-found: error
+
+  deploy:
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Download ClickOnce site
+        uses: actions/download-artifact@v4
+        with:
+          name: clickonce-site
+          path: clickonce
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: clickonce
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
