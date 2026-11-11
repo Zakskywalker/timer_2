@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Reflection;
 using System.Windows.Forms;
 
 namespace Timer2.Installer
@@ -7,8 +8,15 @@ namespace Timer2.Installer
     static class Program
     {
         [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            if (args.Length > 0 && args[0] == "--verify-installer-payload")
+            {
+                using var payload = Assembly.GetExecutingAssembly().GetManifestResourceStream("Timer2.App.exe");
+                Environment.ExitCode = payload != null && payload.Length >= 1024 * 1024 ? 0 : 1;
+                return;
+            }
+
             try
             {
                 Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);

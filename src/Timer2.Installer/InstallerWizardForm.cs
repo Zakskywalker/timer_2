@@ -4,6 +4,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Security.Cryptography;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -549,9 +552,10 @@ namespace Timer2.Installer
             await Task.Delay(200);
 
             string destExe = Path.Combine(_targetDirectory, "TimeRecorder.exe");
+            string stagingExe = destExe + $".payload-{Guid.NewGuid():N}";
             bool extracted = false;
+            string payloadFailure = "The embedded application payload is missing.";
 
-            // 1. Try embedded resource (if packaged)
             try
             {
                 var asm = typeof(InstallerWizardForm).Assembly;
@@ -560,20 +564,31 @@ namespace Timer2.Installer
                     if (stream != null)
                     {
                         UpdateStatus("Extracting Time Recorder embedded payload...", 45);
-                        using (var fs = new FileStream(destExe, FileMode.Create, FileAccess.Write, FileShare.None))
+                        using (var fs = new FileStream(stagingExe, FileMode.CreateNew, FileAccess.Write, FileShare.None))
                         {
                             await stream.CopyToAsync(fs);
                         }
-                        extracted = true;
+                        extracted = IsValidPayload(stagingExe, stream.CanSeek ? stream.Length : null);
+                        if (extracted)
+                        {
+                            File.Move(stagingExe, destExe, true);
+                        }
+                        else
+                        {
+                            payloadFailure = "The embedded application payload is incomplete or invalid.";
+                        }
                     }
                 }
             }
-            catch (IOException)
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                // Fall back to the adjacent development payload when extraction fails.
+                payloadFailure = $"Could not extract the embedded application: {ex.Message}";
+                if (File.Exists(stagingExe))
+                {
+                    File.Delete(stagingExe);
+                }
             }
 
-            // 2. Fallback to companion files on disk
             if (!extracted)
             {
                 string baseDir = AppDomain.CurrentDomain.BaseDirectory;
@@ -591,17 +606,52 @@ namespace Timer2.Installer
                 string foundSrc = searchPaths.FirstOrDefault(p => File.Exists(p));
                 if (!string.IsNullOrEmpty(foundSrc))
                 {
-                    UpdateStatus("Copying Time Recorder payload from disk...", 50);
-                    File.Copy(foundSrc, destExe, true);
+                    try
+                    {
+                        UpdateStatus("Copying Time Recorder payload from disk...", 50);
+                        File.Copy(foundSrc, stagingExe, true);
+                        extracted = IsValidPayload(stagingExe, new FileInfo(foundSrc).Length);
+                        if (extracted)
+                        {
+                            File.Move(stagingExe, destExe, true);
+                        }
+                        else
+                        {
+                            payloadFailure = $"The application payload at {foundSrc} is incomplete or invalid.";
+                        }
+                    }
+                    catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                    {
+                        payloadFailure = $"Could not copy the application payload: {ex.Message}";
+                        if (File.Exists(stagingExe))
+                        {
+                            File.Delete(stagingExe);
+                        }
+                    }
+                }
+            }
+
+            if (!extracted)
+            {
+                try
+                {
+                    await DownloadLatestApplicationAsync(destExe, UpdateStatus);
                     extracted = true;
+                }
+                catch (Exception ex) when (
+                    ex is HttpRequestException or TaskCanceledException or IOException or InvalidDataException
+                        or JsonException or InvalidOperationException or UnauthorizedAccessException
+                        or KeyNotFoundException or FormatException or ArgumentException)
+                {
+                    payloadFailure += $"\r\n\r\nDownloading the latest app also failed: {ex.Message}";
                 }
             }
 
             if (!extracted || !File.Exists(destExe))
             {
                 MessageBox.Show(
-                    "Setup could not locate the Time Recorder payload (Timer2.App.exe).\r\n" +
-                    "Build or download the complete setup package, which includes the application files.",
+                    $"Setup could not install the Time Recorder app.\r\n\r\n{payloadFailure}\r\n\r\n" +
+                    "Check that you have a working internet connection and enough disk space, then try again.",
                     "Installation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
@@ -673,6 +723,99 @@ namespace Timer2.Installer
             UpdateStatus("Installation complete!", 100);
             await Task.Delay(300);
             return true;
+        }
+
+        private static bool IsValidPayload(string path, long? expectedLength)
+        {
+            var file = new FileInfo(path);
+            return file.Exists
+                && file.Length >= 1024 * 1024
+                && (!expectedLength.HasValue || file.Length == expectedLength.Value);
+        }
+
+        private static async Task DownloadLatestApplicationAsync(string destinationPath, Action<string, int> updateStatus)
+        {
+            const string assetName = "TimeRecorder_2.0_App.exe";
+            const long maximumDownloadSize = 512L * 1024 * 1024;
+            using var apiClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            apiClient.DefaultRequestHeaders.UserAgent.ParseAdd("TimeRecorder-Setup/2.0");
+            apiClient.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
+
+            using var releaseResponse = await apiClient.GetAsync(
+                "https://api.github.com/repos/Zakskywalker/timer_2/releases/latest",
+                HttpCompletionOption.ResponseHeadersRead);
+            releaseResponse.EnsureSuccessStatusCode();
+            await using var releaseStream = await releaseResponse.Content.ReadAsStreamAsync();
+            using var release = await JsonDocument.ParseAsync(releaseStream);
+
+            JsonElement asset = release.RootElement.GetProperty("assets")
+                .EnumerateArray()
+                .FirstOrDefault(candidate =>
+                    string.Equals(candidate.GetProperty("name").GetString(), assetName, StringComparison.Ordinal));
+            if (asset.ValueKind == JsonValueKind.Undefined)
+            {
+                throw new InvalidDataException($"The latest release does not contain {assetName}.");
+            }
+
+            long expectedLength = asset.GetProperty("size").GetInt64();
+            if (expectedLength < 1024 * 1024 || expectedLength > maximumDownloadSize)
+            {
+                throw new InvalidDataException($"The released app size ({expectedLength} bytes) is invalid.");
+            }
+
+            string digest = asset.GetProperty("digest").GetString()
+                ?? throw new InvalidDataException("The released app does not have a SHA-256 digest.");
+            if (!digest.StartsWith("sha256:", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidDataException("The released app has an unsupported digest.");
+            }
+
+            string downloadUrl = asset.GetProperty("browser_download_url").GetString()
+                ?? throw new InvalidDataException("The released app does not have a download URL.");
+
+            updateStatus("Downloading the latest Time Recorder app...", 35);
+            using var downloadClient = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+            downloadClient.DefaultRequestHeaders.UserAgent.ParseAdd("TimeRecorder-Setup/2.0");
+            using var downloadResponse = await downloadClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead);
+            downloadResponse.EnsureSuccessStatusCode();
+            if (downloadResponse.Content.Headers.ContentLength.HasValue
+                && downloadResponse.Content.Headers.ContentLength.Value != expectedLength)
+            {
+                throw new InvalidDataException("The released app download has an unexpected content length.");
+            }
+
+            string temporaryPath = destinationPath + $".download-{Guid.NewGuid():N}";
+            try
+            {
+                await using (Stream download = await downloadResponse.Content.ReadAsStreamAsync())
+                await using (var output = new FileStream(temporaryPath, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    await download.CopyToAsync(output);
+                }
+
+                if (!IsValidPayload(temporaryPath, expectedLength))
+                {
+                    throw new InvalidDataException("The downloaded app has an unexpected file size.");
+                }
+
+                await using (var file = new FileStream(temporaryPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    string actualDigest = Convert.ToHexString(await SHA256.HashDataAsync(file));
+                    if (!string.Equals(actualDigest, digest["sha256:".Length..], StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidDataException("The downloaded app failed its SHA-256 integrity check.");
+                    }
+                }
+
+                File.Move(temporaryPath, destinationPath, overwrite: true);
+            }
+            finally
+            {
+                if (File.Exists(temporaryPath))
+                {
+                    File.Delete(temporaryPath);
+                }
+            }
         }
 
         private void RegisterUninstallInfo(string destExe)

@@ -94,6 +94,10 @@ jobs:
           if (-not (Test-Path $setupPath)) {
             throw "Standalone installer was not produced at $setupPath."
           }
+          & $setupPath --verify-installer-payload
+          if ($LASTEXITCODE -ne 0) {
+            throw "The published setup executable does not contain a valid application payload."
+          }
           Copy-Item $setupPath "$env:GITHUB_WORKSPACE\TimeRecorder_2.0_Setup.exe"
 
       - name: Publish installer GitHub Release
