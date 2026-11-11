@@ -80,14 +80,15 @@ timer_2_0/
 
 ## How to Run & Install
 
-### 1. Launch the Setup Install Wizard:
-Run the standalone setup installer executable:
+### 1. Build and launch the Setup Install Wizard:
+Publish the standalone setup package (the application payload is published and embedded automatically):
 ```powershell
-timer_2_0\Setup.exe
+dotnet publish .\src\Timer2.Installer\Timer2.Installer.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o .\dist\setup
+Copy-Item .\dist\setup\Timer2.Installer.exe .\dist\TimeRecorder_2.0_Setup.exe
 ```
-Or from the distribution folder:
+Then run the generated installer:
 ```powershell
-timer_2_0\dist\TimeRecorder_Setup_Wizard.exe
+.\dist\TimeRecorder_2.0_Setup.exe
 ```
 This runs the full **Setup Install Wizard UI**, which guides you through:
 1. **Welcome Screen** with version & feature overview.

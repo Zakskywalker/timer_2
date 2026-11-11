@@ -20,4 +20,21 @@
     <EmbeddedResource Include="..\..\LICENSE" LogicalName="LICENSE" Condition="Exists('..\..\LICENSE')" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <InstallerPayloadPath Condition="'$(InstallerPayloadPath)' == ''">$(MSBuildProjectDirectory)\obj\$(Configuration)\installer-payload\Timer2.App.exe</InstallerPayloadPath>
+    <InstallerPayloadDirectory>$([System.IO.Path]::GetDirectoryName('$(InstallerPayloadPath)'))\</InstallerPayloadDirectory>
+  </PropertyGroup>
+
+  <Target Name="PublishTimer2ApplicationPayload" BeforeTargets="PrepareResources" Condition="'$(DesignTimeBuild)' != 'true'">
+    <MSBuild
+      Projects="$(MSBuildProjectDirectory)\..\Timer2.App\Timer2.App.csproj"
+      Targets="Restore;Publish"
+      Properties="Configuration=Release;RuntimeIdentifier=win-x64;SelfContained=true;PublishSingleFile=true;IncludeNativeLibrariesForSelfExtract=true;PublishDir=$(InstallerPayloadDirectory)"
+      Condition="!Exists('$(InstallerPayloadPath)')" />
+    <Error Condition="!Exists('$(InstallerPayloadPath)')" Text="The Time Recorder application payload was not published to $(InstallerPayloadPath)." />
+    <ItemGroup>
+      <EmbeddedResource Include="$(InstallerPayloadPath)" LogicalName="Timer2.App.exe" />
+    </ItemGroup>
+  </Target>
+
 </Project>

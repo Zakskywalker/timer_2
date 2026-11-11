@@ -1126,11 +1126,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\tests\\Timer2.Tests\\Timer2.Tests.csproj",
+      "projectUniqueName": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\tests\\Timer2.Tests\\Timer2.Tests.csproj",
       "projectName": "Timer2.Tests",
-      "projectPath": "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\tests\\Timer2.Tests\\Timer2.Tests.csproj",
+      "projectPath": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\tests\\Timer2.Tests\\Timer2.Tests.csproj",
       "packagesPath": "C:\\Users\\zaksk\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\tests\\Timer2.Tests\\obj\\",
+      "outputPath": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\tests\\Timer2.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\zaksk\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -1146,8 +1146,8 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
-            "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\src\\Timer2.Core\\Timer2.Core.csproj": {
-              "projectPath": "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\src\\Timer2.Core\\Timer2.Core.csproj"
+            "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\src\\Timer2.Core\\Timer2.Core.csproj": {
+              "projectPath": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\src\\Timer2.Core\\Timer2.Core.csproj"
             }
           }
         }

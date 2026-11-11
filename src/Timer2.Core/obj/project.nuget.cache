@@ -1,12 +1,16 @@
 {
   "version": 2,
-  "dgSpecHash": "KGXhtSUZKE0=",
+  "dgSpecHash": "b0UNa51tEKI=",
   "success": true,
-  "projectFilePath": "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\src\\Timer2.Core\\Timer2.Core.csproj",
+  "projectFilePath": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\src\\Timer2.Core\\Timer2.Core.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
     "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.2\\microsoft.extensions.logging.abstractions.8.0.2.nupkg.sha512",
-    "C:\\Users\\zaksk\\.nuget\\packages\\mysqlconnector\\2.6.2\\mysqlconnector.2.6.2.nupkg.sha512"
+    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.net.illink.tasks\\10.0.14\\microsoft.net.illink.tasks.10.0.14.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\mysqlconnector\\2.6.2\\mysqlconnector.2.6.2.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\10.0.14\\microsoft.netcore.app.runtime.win-x64.10.0.14.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\10.0.14\\microsoft.windowsdesktop.app.runtime.win-x64.10.0.14.nupkg.sha512",
+    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\10.0.14\\microsoft.aspnetcore.app.runtime.win-x64.10.0.14.nupkg.sha512"
   ],
   "logs": []
 }

@@ -498,11 +498,17 @@ namespace Timer2.Installer
                 btnNext.Enabled = false;
                 btnCancel.Enabled = false;
 
-                await RunInstallationAsync();
-
-                ShowPage(6);
-                btnNext.Enabled = true;
-                btnCancel.Enabled = false;
+                if (await RunInstallationAsync())
+                {
+                    ShowPage(6);
+                    btnNext.Enabled = true;
+                    btnCancel.Enabled = false;
+                }
+                else
+                {
+                    ShowPage(4);
+                    btnCancel.Enabled = true;
+                }
             }
             else if (_currentPage == 6)
             {
@@ -523,7 +529,7 @@ namespace Timer2.Installer
             }
         }
 
-        private async Task RunInstallationAsync()
+        private async Task<bool> RunInstallationAsync()
         {
             void UpdateStatus(string message, int progress)
             {
@@ -562,7 +568,10 @@ namespace Timer2.Installer
                     }
                 }
             }
-            catch { }
+            catch (IOException)
+            {
+                // Fall back to the adjacent development payload when extraction fails.
+            }
 
             // 2. Fallback to companion files on disk
             if (!extracted)
@@ -576,8 +585,7 @@ namespace Timer2.Installer
                     Path.Combine(baseDir, "Timer2.App.exe"),
                     Path.GetFullPath(Path.Combine(baseDir, "..", "publish", "win11-x64", "Timer2.App.exe")),
                     Path.GetFullPath(Path.Combine(baseDir, "..", "..", "..", "..", "publish", "win11-x64", "Timer2.App.exe")),
-                    Path.GetFullPath(Path.Combine(exeDir, "publish", "win11-x64", "Timer2.App.exe")),
-                    @"C:\Users\zaksk\Documents\Source\timer_2_0\publish\win11-x64\Timer2.App.exe"
+                    Path.GetFullPath(Path.Combine(exeDir, "publish", "win11-x64", "Timer2.App.exe"))
                 };
 
                 string foundSrc = searchPaths.FirstOrDefault(p => File.Exists(p));
@@ -593,11 +601,11 @@ namespace Timer2.Installer
             {
                 MessageBox.Show(
                     "Setup could not locate the Time Recorder payload (Timer2.App.exe).\r\n" +
-                    "Please ensure the published binary is present in the publish folder.",
+                    "Build or download the complete setup package, which includes the application files.",
                     "Installation Error",
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Error);
-                return;
+                return false;
             }
 
             // Extract or Copy License
@@ -664,6 +672,7 @@ namespace Timer2.Installer
 
             UpdateStatus("Installation complete!", 100);
             await Task.Delay(300);
+            return true;
         }
 
         private void RegisterUninstallInfo(string destExe)

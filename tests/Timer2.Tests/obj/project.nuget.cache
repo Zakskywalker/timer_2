@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "fnj9CvpNqZk=",
+  "dgSpecHash": "GySyyJZN04M=",
   "success": true,
-  "projectFilePath": "C:\\Users\\zaksk\\Documents\\Source\\timer_2_0\\tests\\Timer2.Tests\\Timer2.Tests.csproj",
+  "projectFilePath": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\tests\\Timer2.Tests\\Timer2.Tests.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\zaksk\\.nuget\\packages\\coverlet.collector\\6.0.4\\coverlet.collector.6.0.4.nupkg.sha512",
     "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.codecoverage\\17.14.1\\microsoft.codecoverage.17.14.1.nupkg.sha512",
