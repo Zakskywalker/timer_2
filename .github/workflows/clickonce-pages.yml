@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: clickonce-pages-${{ github.ref }}
@@ -55,6 +55,40 @@ jobs:
           }
           Copy-Item .github/pages/index.html clickonce/index.html
           New-Item -ItemType File -Path clickonce/.nojekyll -Force | Out-Null
+
+      - name: Publish standalone Windows installer
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          dotnet publish src/Timer2.Installer/Timer2.Installer.csproj `
+            --configuration Release `
+            --runtime win-x64 `
+            --self-contained true `
+            "-p:PublishSingleFile=true" `
+            "-p:IncludeNativeLibrariesForSelfExtract=true" `
+            "-p:Version=2.0.$env:GITHUB_RUN_NUMBER.$env:GITHUB_RUN_ATTEMPT" `
+            --output "$env:GITHUB_WORKSPACE\standalone-installer"
+          if ($LASTEXITCODE -ne 0) {
+            exit $LASTEXITCODE
+          }
+          $setupPath = "$env:GITHUB_WORKSPACE\standalone-installer\Timer2.Installer.exe"
+          if (-not (Test-Path $setupPath)) {
+            throw "Standalone installer was not produced at $setupPath."
+          }
+          Copy-Item $setupPath "$env:GITHUB_WORKSPACE\TimeRecorder_2.0_Setup.exe"
+
+      - name: Publish installer GitHub Release
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v2.0.${{ github.run_number }}.${{ github.run_attempt }}
+          name: Time Recorder 2.0 (build ${{ github.run_number }}.${{ github.run_attempt }})
+          target_commitish: main
+          make_latest: true
+          files: TimeRecorder_2.0_Setup.exe
+          fail_on_unmatched_files: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload ClickOnce site
         if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
