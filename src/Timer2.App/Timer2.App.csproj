@@ -4,6 +4,10 @@
     <ProjectReference Include="..\Timer2.Core\Timer2.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\SplashArtwork.jpg" LogicalName="Timer2.App.Resources.SplashArtwork.jpg" />
+  </ItemGroup>
+
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows</TargetFramework>

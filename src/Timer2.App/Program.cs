@@ -10,7 +10,7 @@ namespace Timer2.App
         static void Main()
         {
             ApplicationConfiguration.Initialize();
-            Application.Run(new MainForm());
+            Application.Run(new SplashScreenForm());
         }
     }
 }
