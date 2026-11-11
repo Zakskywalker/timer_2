@@ -69,10 +69,10 @@ namespace Timer2.Tests
             var total = new TimeSpan(5, 36, 16);
 
             string runningTooltip = TimeCalculator.FormatTrayTooltip(7, run, total, false);
-            Assert.Equal("Timer - Run 7: 5 Hrs. 36 Min. 16 Sec. | 5.60 hrs.", runningTooltip);
+            Assert.Equal("Timer - Run 7: 5:36:16 | Total(Time): 5.60 hrs.", runningTooltip);
 
             string pausedTooltip = TimeCalculator.FormatTrayTooltip(7, run, total, true);
-            Assert.Equal("Timer - Run 7: 5 Hrs. 36 Min. 16 Sec. | 5.60 hrs. [Paused]", pausedTooltip);
+            Assert.Equal("Timer - Run 7: 5:36:16 | Total(Time): 5.60 hrs.", pausedTooltip);
         }
     }
 }
