@@ -16,6 +16,7 @@ namespace Timer2.App.Forms
         private ComboBox cbThemes;
         private CheckBox chkMinimizeToTray;
         private CheckBox chkCloseToTray;
+        private CheckBox chkDisableUpdates;
         private NumericUpDown nudBackupSeconds;
         private Button btnApply;
         private Button btnCancel;
@@ -27,7 +28,7 @@ namespace Timer2.App.Forms
             _onThemeApplied = onThemeApplied;
 
             this.Text = "Settings & Theme Chooser";
-            this.Size = new Size(460, 380);
+            this.Size = new Size(480, 420);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -61,7 +62,7 @@ namespace Timer2.App.Forms
             cbThemes = new ComboBox
             {
                 Location = new Point(170, y),
-                Width = 240,
+                Width = 260,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
 
@@ -94,17 +95,17 @@ namespace Timer2.App.Forms
             this.Controls.Add(cbThemes);
             y += 45;
 
-            var gbTray = new GroupBox
+            var gbOptions = new GroupBox
             {
-                Text = "Notification Tray Options",
+                Text = "Application, Tray & Update Options",
                 Location = new Point(20, y),
-                Size = new Size(390, 100)
+                Size = new Size(410, 126)
             };
 
             chkMinimizeToTray = new CheckBox
             {
                 Text = "Minimize window to notification tray",
-                Location = new Point(15, 28),
+                Location = new Point(15, 26),
                 AutoSize = true,
                 Checked = _config.MinimizeToTray
             };
@@ -112,15 +113,24 @@ namespace Timer2.App.Forms
             chkCloseToTray = new CheckBox
             {
                 Text = "Close button minimizes to tray instead of quitting",
-                Location = new Point(15, 58),
+                Location = new Point(15, 54),
                 AutoSize = true,
                 Checked = _config.CloseToTray
             };
 
-            gbTray.Controls.Add(chkMinimizeToTray);
-            gbTray.Controls.Add(chkCloseToTray);
-            this.Controls.Add(gbTray);
-            y += 115;
+            chkDisableUpdates = new CheckBox
+            {
+                Text = "Disable automatic update check on startup (Testing mode)",
+                Location = new Point(15, 82),
+                AutoSize = true,
+                Checked = _config.DisableAutoUpdates
+            };
+
+            gbOptions.Controls.Add(chkMinimizeToTray);
+            gbOptions.Controls.Add(chkCloseToTray);
+            gbOptions.Controls.Add(chkDisableUpdates);
+            this.Controls.Add(gbOptions);
+            y += 140;
 
             var lblBackup = new Label
             {
@@ -138,13 +148,13 @@ namespace Timer2.App.Forms
             };
             this.Controls.Add(lblBackup);
             this.Controls.Add(nudBackupSeconds);
-            y += 45;
+            y += 42;
 
             btnApply = new Button
             {
                 Text = "Save & Apply Settings",
-                Location = new Point(110, y),
-                Size = new Size(160, 34),
+                Location = new Point(120, y),
+                Size = new Size(170, 34),
                 Font = new Font("Segoe UI", 9.5f, FontStyle.Bold)
             };
             btnApply.Click += BtnApply_Click;
@@ -152,7 +162,7 @@ namespace Timer2.App.Forms
             btnCancel = new Button
             {
                 Text = "Cancel",
-                Location = new Point(280, y),
+                Location = new Point(300, y),
                 Size = new Size(100, 34)
             };
             btnCancel.Click += (s, e) => this.Close();
@@ -171,6 +181,7 @@ namespace Timer2.App.Forms
 
             _config.MinimizeToTray = chkMinimizeToTray.Checked;
             _config.CloseToTray = chkCloseToTray.Checked;
+            _config.DisableAutoUpdates = chkDisableUpdates.Checked;
             _config.AutoCheckpointSeconds = (int)nudBackupSeconds.Value;
 
             _configManager.SaveConfig(_config);

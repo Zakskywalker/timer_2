@@ -1,6 +1,9 @@
 using System.Drawing.Drawing2D;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using Timer2.App.Updates;
+using Timer2.Core.Storage;
 
 namespace Timer2.App.Forms;
 
@@ -9,9 +12,12 @@ internal sealed class SplashScreenForm : Form
     private bool _started;
     private readonly Label _loading;
     private readonly Image _splashArtwork;
+    private readonly string[] _args;
 
-    public SplashScreenForm()
+    public SplashScreenForm(string[] args = null)
     {
+        _args = args ?? Array.Empty<string>();
+
         Text = "Time Recorder";
         ClientSize = new Size(740, 410);
         FormBorderStyle = FormBorderStyle.None;
@@ -112,7 +118,19 @@ internal sealed class SplashScreenForm : Form
         base.OnShown(e);
         var startupTime = System.Diagnostics.Stopwatch.StartNew();
 
-        if (string.Equals(
+        var config = new ConfigManager().LoadConfig();
+        bool updatesDisabled = config.DisableAutoUpdates
+            || _args.Any(a => string.Equals(a, "--no-update", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(a, "--disable-updates", StringComparison.OrdinalIgnoreCase)
+                           || string.Equals(a, "/NoUpdate", StringComparison.OrdinalIgnoreCase))
+            || string.Equals(Environment.GetEnvironmentVariable("TIMER2_DISABLE_UPDATE"), "true", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(Environment.GetEnvironmentVariable("TIMER2_DISABLE_UPDATE"), "1", StringComparison.OrdinalIgnoreCase);
+
+        if (updatesDisabled)
+        {
+            _loading.Text = "Testing mode: Updates disabled. Starting application...";
+        }
+        else if (string.Equals(
             Environment.GetEnvironmentVariable("ClickOnce_IsNetworkDeployed"),
             "true",
             StringComparison.OrdinalIgnoreCase))
@@ -140,7 +158,7 @@ internal sealed class SplashScreenForm : Form
             }
         }
 
-        TimeSpan remaining = TimeSpan.FromMilliseconds(1600) - startupTime.Elapsed;
+        TimeSpan remaining = TimeSpan.FromMilliseconds(1200) - startupTime.Elapsed;
         if (remaining > TimeSpan.Zero)
         {
             await Task.Delay(remaining);

@@ -62,6 +62,8 @@ namespace Timer2.App.Forms
 
         private Icon _iconBlue;
         private Icon _iconRed;
+        private bool _isExplicitExit = false;
+        private bool _shutdownModalShown = false;
 
         public MainForm()
         {
@@ -867,7 +869,7 @@ return centralTime.ToString("hh:mm:ss tt");
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (_config.CloseToTray && e.CloseReason == CloseReason.UserClosing)
+            if (!_isExplicitExit && _config.CloseToTray && e.CloseReason == CloseReason.UserClosing)
             {
                 e.Cancel = true;
                 this.Hide();
@@ -878,6 +880,22 @@ return centralTime.ToString("hh:mm:ss tt");
             {
                 StopTimer();
             }
+
+            UpdateConsoleDisplay();
+
+            if (!_shutdownModalShown)
+            {
+                _shutdownModalShown = true;
+                using (var modal = new ShutdownNotificationModal(
+                    rtbConsole.Text,
+                    _logManager.LogDirectory,
+                    _logManager.TimeLogPath,
+                    _config.Theme))
+                {
+                    modal.ShowDialog(this.Visible ? this : null);
+                }
+            }
+
             try
             {
                 _chromeActivityRecorder.Dispose();
@@ -895,12 +913,8 @@ return centralTime.ToString("hh:mm:ss tt");
 
         private void CloseApplication()
         {
-            if (_isRecording)
-            {
-                StopTimer();
-            }
-            trayIcon.Visible = false;
-            Application.Exit();
+            _isExplicitExit = true;
+            this.Close();
         }
 
         private class CopyFormatItem

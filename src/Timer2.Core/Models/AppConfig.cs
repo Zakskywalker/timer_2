@@ -37,6 +37,13 @@ namespace Timer2.Core.Models
         public int AutoCheckpointSeconds { get; set; } = 10;
         public bool MinimizeToTray { get; set; } = true;
         public bool CloseToTray { get; set; } = false;
+
+        /// <summary>
+        /// When true, disables automatic update checks and downloads on application startup (ideal for testing/development).
+        /// Can also be overridden by passing --no-update CLI argument or setting TIMER2_DISABLE_UPDATE=1.
+        /// </summary>
+        public bool DisableAutoUpdates { get; set; } = false;
+
         public MySqlConfig MySql { get; set; } = new MySqlConfig();
 
         public static string DefaultConfigFilePath => Path.Combine(

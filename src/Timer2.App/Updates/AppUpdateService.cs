@@ -13,6 +13,19 @@ internal static class AppUpdateService
 
     public static async Task<bool> CheckAndStartUpdateAsync(string targetPath, Action<string> setStatus)
     {
+        // Never auto-update/overwrite developer builds running from source or bin directories,
+        // when debugging, or when update checks are explicitly disabled.
+        if (Debugger.IsAttached ||
+            targetPath.Contains(@"\bin\Debug\", StringComparison.OrdinalIgnoreCase) ||
+            targetPath.Contains(@"\bin\Release\", StringComparison.OrdinalIgnoreCase) ||
+            targetPath.Contains(@"/bin/Debug/", StringComparison.OrdinalIgnoreCase) ||
+            targetPath.Contains(@"/bin/Release/", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Environment.GetEnvironmentVariable("TIMER2_DISABLE_UPDATE"), "true", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Environment.GetEnvironmentVariable("TIMER2_DISABLE_UPDATE"), "1", StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
         using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
         client.DefaultRequestHeaders.UserAgent.ParseAdd("TimeRecorder/2.0");
         client.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");

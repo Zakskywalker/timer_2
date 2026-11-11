@@ -17,7 +17,7 @@ namespace Timer2.App
             }
 
             ApplicationConfiguration.Initialize();
-            Application.Run(new SplashScreenForm());
+            Application.Run(new SplashScreenForm(args));
         }
     }
 }
