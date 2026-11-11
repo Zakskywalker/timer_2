@@ -12,6 +12,7 @@ namespace Timer2.App.Forms
     public class LogViewerSelectorForm : Form
     {
         private readonly ILogManager _logManager;
+        private readonly ChromeActivityLog _chromeActivityLog;
         private readonly string _themeName;
         private readonly ThemePalette _palette;
 
@@ -24,6 +25,7 @@ namespace Timer2.App.Forms
         private RadioButton rbTextTime;
         private RadioButton rbTextSystem;
         private RadioButton rbTextChanges;
+        private RadioButton rbTextChrome;
         private Button btnInApp;
         private Button btnFileExplorer;
 
@@ -35,14 +37,23 @@ namespace Timer2.App.Forms
         private RadioButton rbHtmlLight;
         private Button btnGenerateHtml;
 
-        public LogViewerSelectorForm(ILogManager logManager, string themeName)
+        // Card 3: Chrome activity correlation report
+        private Panel pnlChromeCard;
+        private RadioButton rbOptionChrome;
+        private Label lblChromeGroupTitle;
+        private RadioButton rbChromeDark;
+        private RadioButton rbChromeLight;
+        private Button btnGenerateChromeReport;
+
+        public LogViewerSelectorForm(ILogManager logManager, ChromeActivityLog chromeActivityLog, string themeName)
         {
             _logManager = logManager;
+            _chromeActivityLog = chromeActivityLog;
             _themeName = themeName;
             _palette = ThemeManager.GetPalette(_themeName);
 
             this.Text = "Log Viewer";
-            this.Size = new Size(580, 520);
+            this.Size = new Size(580, 700);
             this.StartPosition = FormStartPosition.CenterParent;
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -80,7 +91,11 @@ namespace Timer2.App.Forms
                 Cursor = Cursors.Hand
             };
             rbOptionText.CheckedChanged += (s, e) => {
-                if (rbOptionText.Checked) rbOptionHtml.Checked = false;
+                if (rbOptionText.Checked)
+                {
+                    rbOptionHtml.Checked = false;
+                    rbOptionChrome.Checked = false;
+                }
                 ApplyCardStateColors();
             };
             this.Controls.Add(rbOptionText);
@@ -88,7 +103,7 @@ namespace Timer2.App.Forms
             pnlTextCard = new Panel
             {
                 Location = new Point(46, 88),
-                Size = new Size(490, 148),
+                Size = new Size(490, 170),
                 Padding = new Padding(14)
             };
             pnlTextCard.Paint += (s, e) => DrawCardBorder(pnlTextCard, e.Graphics, rbOptionText.Checked);
@@ -132,10 +147,19 @@ namespace Timer2.App.Forms
             };
             rbTextChanges.Click += (s, e) => { rbOptionText.Checked = true; };
 
+            rbTextChrome = new RadioButton
+            {
+                Text = "Google Chrome Activity (latest daily log)",
+                Location = new Point(16, 88),
+                AutoSize = true,
+                Cursor = Cursors.Hand
+            };
+            rbTextChrome.Click += (s, e) => { rbOptionText.Checked = true; };
+
             btnInApp = new Button
             {
                 Text = "View in App (Searchable)",
-                Location = new Point(16, 98),
+                Location = new Point(16, 118),
                 Size = new Size(190, 34),
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 UseMnemonic = false,
@@ -146,7 +170,7 @@ namespace Timer2.App.Forms
             btnFileExplorer = new Button
             {
                 Text = "Reveal in File Explorer",
-                Location = new Point(220, 98),
+                Location = new Point(220, 118),
                 Size = new Size(190, 34),
                 Font = new Font("Segoe UI", 9f, FontStyle.Bold),
                 UseMnemonic = false,
@@ -154,7 +178,7 @@ namespace Timer2.App.Forms
             };
             btnFileExplorer.Click += BtnFileExplorer_Click;
 
-            pnlTextCard.Controls.AddRange(new Control[] { rbTextTime, rbTextSystem, rbTextChanges, btnInApp, btnFileExplorer });
+            pnlTextCard.Controls.AddRange(new Control[] { rbTextTime, rbTextSystem, rbTextChanges, rbTextChrome, btnInApp, btnFileExplorer });
             this.Controls.Add(pnlTextCard);
 
             // ==========================================
@@ -163,7 +187,7 @@ namespace Timer2.App.Forms
             rbOptionHtml = new RadioButton
             {
                 Text = "Interactive HTML Report (Filterable table && sticky summary)",
-                Location = new Point(28, 250),
+                Location = new Point(28, 272),
                 AutoSize = true,
                 Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
                 Checked = false,
@@ -171,14 +195,18 @@ namespace Timer2.App.Forms
                 Cursor = Cursors.Hand
             };
             rbOptionHtml.CheckedChanged += (s, e) => {
-                if (rbOptionHtml.Checked) rbOptionText.Checked = false;
+                if (rbOptionHtml.Checked)
+                {
+                    rbOptionText.Checked = false;
+                    rbOptionChrome.Checked = false;
+                }
                 ApplyCardStateColors();
             };
             this.Controls.Add(rbOptionHtml);
 
             pnlHtmlCard = new Panel
             {
-                Location = new Point(46, 282),
+                Location = new Point(46, 304),
                 Size = new Size(490, 168),
                 Padding = new Padding(14)
             };
@@ -229,6 +257,82 @@ namespace Timer2.App.Forms
 
             pnlHtmlCard.Controls.AddRange(new Control[] { rbHtmlDark, rbHtmlLight, btnGenerateHtml });
             this.Controls.Add(pnlHtmlCard);
+
+            rbOptionChrome = new RadioButton
+            {
+                Text = "Google Chrome Activity Correlation Report",
+                Location = new Point(28, 484),
+                AutoSize = true,
+                Font = new Font("Segoe UI", 10.5f, FontStyle.Bold),
+                UseMnemonic = false,
+                Cursor = Cursors.Hand
+            };
+            rbOptionChrome.CheckedChanged += (s, e) => {
+                if (rbOptionChrome.Checked)
+                {
+                    rbOptionText.Checked = false;
+                    rbOptionHtml.Checked = false;
+                }
+                ApplyCardStateColors();
+            };
+            this.Controls.Add(rbOptionChrome);
+
+            pnlChromeCard = new Panel
+            {
+                Location = new Point(46, 516),
+                Size = new Size(490, 128),
+                Padding = new Padding(14)
+            };
+            pnlChromeCard.Paint += (s, e) => DrawCardBorder(pnlChromeCard, e.Graphics, rbOptionChrome.Checked);
+            pnlChromeCard.Click += (s, e) => { rbOptionChrome.Checked = true; };
+
+            lblChromeGroupTitle = new Label
+            {
+                Text = "CHROME ACTIVITY REPORT THEME",
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold),
+                Location = new Point(14, 10),
+                AutoSize = true
+            };
+            lblChromeGroupTitle.Click += (s, e) => { rbOptionChrome.Checked = true; };
+
+            rbChromeDark = new RadioButton
+            {
+                Text = "Dark Theme",
+                Location = new Point(16, 34),
+                AutoSize = true,
+                Checked = true,
+                Cursor = Cursors.Hand
+            };
+            rbChromeDark.Click += (s, e) => { rbOptionChrome.Checked = true; };
+
+            rbChromeLight = new RadioButton
+            {
+                Text = "Light Theme",
+                Location = new Point(150, 34),
+                AutoSize = true,
+                Cursor = Cursors.Hand
+            };
+            rbChromeLight.Click += (s, e) => { rbOptionChrome.Checked = true; };
+
+            btnGenerateChromeReport = new Button
+            {
+                Text = "Generate && Save Chrome Correlation Report...",
+                Location = new Point(16, 76),
+                Size = new Size(340, 36),
+                Font = new Font("Segoe UI", 9.5f, FontStyle.Bold),
+                UseMnemonic = false,
+                Cursor = Cursors.Hand
+            };
+            btnGenerateChromeReport.Click += BtnGenerateChromeReport_Click;
+
+            pnlChromeCard.Controls.AddRange(new Control[]
+            {
+                lblChromeGroupTitle,
+                rbChromeDark,
+                rbChromeLight,
+                btnGenerateChromeReport
+            });
+            this.Controls.Add(pnlChromeCard);
         }
 
         private void DrawCardBorder(Panel panel, Graphics g, bool isActive)
@@ -256,10 +360,12 @@ namespace Timer2.App.Forms
         {
             bool textActive = rbOptionText.Checked;
             bool htmlActive = rbOptionHtml.Checked;
+            bool chromeActive = rbOptionChrome.Checked;
 
             // Header Radio Buttons
             rbOptionText.ForeColor = textActive ? _palette.AccentLabelColor : Color.FromArgb(140, 150, 165);
             rbOptionHtml.ForeColor = htmlActive ? _palette.AccentLabelColor : Color.FromArgb(140, 150, 165);
+            rbOptionChrome.ForeColor = chromeActive ? _palette.AccentLabelColor : Color.FromArgb(140, 150, 165);
 
             // Palette colors
             Color activeFg = _palette.Foreground;
@@ -278,6 +384,7 @@ namespace Timer2.App.Forms
             rbTextTime.ForeColor = textActive ? activeFg : inactiveFg;
             rbTextSystem.ForeColor = textActive ? activeFg : inactiveFg;
             rbTextChanges.ForeColor = textActive ? activeFg : inactiveFg;
+            rbTextChrome.ForeColor = textActive ? activeFg : inactiveFg;
 
             if (textActive)
             {
@@ -310,6 +417,20 @@ namespace Timer2.App.Forms
                 StyleButton(btnGenerateHtml, Color.FromArgb(28, 35, 45), Color.FromArgb(145, 155, 170), Color.FromArgb(55, 65, 80), false);
             }
             pnlHtmlCard.Invalidate();
+
+            pnlChromeCard.BackColor = chromeActive ? activeBg : inactiveBg;
+            lblChromeGroupTitle.ForeColor = chromeActive ? activeAccent : inactiveGroupTitle;
+            rbChromeDark.ForeColor = chromeActive ? activeFg : inactiveFg;
+            rbChromeLight.ForeColor = chromeActive ? activeFg : inactiveFg;
+            if (chromeActive)
+            {
+                StyleButton(btnGenerateChromeReport, _palette.ButtonBackground, _palette.ButtonForeground, _palette.ButtonBorderColor, true);
+            }
+            else
+            {
+                StyleButton(btnGenerateChromeReport, Color.FromArgb(28, 35, 45), Color.FromArgb(145, 155, 170), Color.FromArgb(55, 65, 80), false);
+            }
+            pnlChromeCard.Invalidate();
         }
 
         private void StyleButton(Button btn, Color bg, Color fg, Color border, bool isHighPriority)
@@ -323,6 +444,12 @@ namespace Timer2.App.Forms
 
         private string GetSelectedLogFilePath(out string title)
         {
+            if (rbTextChrome.Checked)
+            {
+                DateTime day = _chromeActivityLog.GetAvailableDays().FirstOrDefault(DateTime.Today);
+                title = $"Google Chrome Activity ({day:yyyy-MM-dd})";
+                return _chromeActivityLog.GetPathForDay(day);
+            }
             if (rbTextSystem.Checked)
             {
                 title = "System & Error Log";
@@ -352,6 +479,10 @@ namespace Timer2.App.Forms
             if (File.Exists(path))
             {
                 Process.Start("explorer.exe", $"/select,\"{path}\"");
+            }
+            else if (rbTextChrome.Checked && Directory.Exists(_chromeActivityLog.DirectoryPath))
+            {
+                Process.Start("explorer.exe", $"\"{_chromeActivityLog.DirectoryPath}\"");
             }
             else if (Directory.Exists(_logManager.LogDirectory))
             {
@@ -403,6 +534,71 @@ namespace Timer2.App.Forms
                 {
                     MessageBox.Show($"Failed to generate HTML report: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
+            }
+        }
+
+        private void BtnGenerateChromeReport_Click(object sender, EventArgs e)
+        {
+            rbOptionChrome.Checked = true;
+            string theme = rbChromeDark.Checked ? "Dark" : "Light";
+
+            using var sfd = new SaveFileDialog
+            {
+                Title = "Choose Chrome Activity Report Location",
+                Filter = "HTML Document (*.html)|*.html",
+                FileName = $"ChromeActivityReport_{DateTime.Now:yyyyMMdd_HHmmss}.html",
+                InitialDirectory = _logManager.LogDirectory
+            };
+
+            if (sfd.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                var chromeEntries = _chromeActivityLog.GetAllEntries();
+                if (chromeEntries.Count == 0)
+                {
+                    MessageBox.Show(
+                        this,
+                        "No Chrome activity has been recorded yet.",
+                        "No Chrome Activity",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information);
+                    return;
+                }
+
+                var generator = new ChromeActivityReportGenerator();
+                generator.SaveReportToFile(chromeEntries, _logManager.GetAllDays(), sfd.FileName, theme);
+
+                DialogResult openReport = MessageBox.Show(
+                    this,
+                    $"Chrome activity correlation report created at:\r\n{sfd.FileName}\r\n\r\nWould you like to open it now?",
+                    "Report Created",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Information);
+                if (openReport == DialogResult.Yes)
+                {
+                    Process.Start(new ProcessStartInfo
+                    {
+                        FileName = sfd.FileName,
+                        UseShellExecute = true
+                    });
+                }
+            }
+            catch (Exception ex) when (
+                ex is IOException ||
+                ex is UnauthorizedAccessException ||
+                ex is System.Text.Json.JsonException ||
+                ex is System.ComponentModel.Win32Exception)
+            {
+                MessageBox.Show(
+                    this,
+                    $"Failed to generate Chrome activity report: {ex.Message}",
+                    "Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
         }
     }

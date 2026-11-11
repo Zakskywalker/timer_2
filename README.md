@@ -1,6 +1,6 @@
 # Time Recorder 2.0 (Timer 2.0)
 
-A modern, high-precision .NET Windows Forms time recording and tracking system featuring fault-tolerant auto-healing logging, notification tray integration, dynamic theme switching, dual-table MySQL sync and compare panel, responsive stretchable and "phone bar" docking layout, and interactive HTML reporting with sticky summaries.
+A modern, high-precision .NET Windows Forms time recording and tracking system featuring fault-tolerant auto-healing logging, notification tray integration, dynamic theme switching, dual-table MySQL sync and compare panel, responsive stretchable and "phone bar" docking layout, Chrome activity recording, and interactive HTML reporting with sticky summaries.
 
 Licensed under the **GNU General Public License v3 (GPLv3)**.
 
@@ -46,6 +46,11 @@ Licensed under the **GNU General Public License v3 (GPLv3)**.
 - **Inno Setup Script (`installer/setup.iss`)**: Generates a standard Windows 11 modern wizard installer (`dist/TimeRecorder_2.0_Win11_Setup.exe`).
 - **PowerShell Windows 11 Installer (`installer/install_windows11.ps1`)**: Turnkey script that installs the application into `%LOCALAPPDATA%\Programs\TimeRecorder`, generates Start Menu & Desktop shortcuts with the custom clock icon, and registers the uninstaller with Windows 11 Installed Apps (`Add/Remove Programs`).
 
+### 6. Google Chrome Activity Logging
+- Open **Google Chrome Activity** below the main timer console to start or stop recording independently of the work timer, or capture the current Chrome window title once.
+- Activity is written to separate daily text files under `ChromeActivity` in the configured log directory. Closing the activity panel does not stop recording; the log day selector is disabled while recording.
+- Capture is process-only: it records the foreground Chrome window/tab title when observed, not URLs or background-tab changes. The Chrome correlation HTML report is available from **Log Viewer** and compares observed intervals with timer sessions; intervals without matching timer timestamps are marked unknown.
+
 ---
 
 ## Directory Structure
@@ -60,14 +65,15 @@ timer_2_0/
 │   ├── Timer2.Core/           # Core calculations, database, storage & HTML export
 │   │   ├── Calculations/      # TimeCalculator, decimal formatting, H:P / H:M
 │   │   ├── Database/          # IDataConnector, MySqlDataConnector (Dual tables & Compare)
-│   │   ├── Export/            # IHtmlTemplate, Dark/Light templates, HtmlReportGenerator
+│   │   ├── Export/            # IHtmlTemplate, Dark/Light templates, HTML report generators
 │   │   ├── Models/            # TimeEntry, DaySummary, DbComparisonModels, AppConfig, etc.
-│   │   └── Storage/           # LogManager, LogParser, LogIndexManager, ConfigManager
+│   │   └── Storage/           # LogManager, ChromeActivityLog, LogParser, LogIndexManager, ConfigManager
 │   └── Timer2.App/            # Windows Forms Project (.NET 10.0 Windows)
-│       ├── Forms/             # MainForm, DbSyncComparisonForm, AddModifyTimeForm, etc.
-│       └── UI/                # ClockIconFactory, ThemeManager
+│       ├── Forms/             # MainForm, ChromeActivityForm, DbSyncComparisonForm, etc.
+│       └── Services/          # Chrome process-window title recorder
+│       ├── UI/                # ClockIconFactory, ThemeManager
 ├── tests/
-    └── Timer2.Tests/          # 15 automated unit tests
+    └── Timer2.Tests/          # Automated unit tests
 ├── installer/
 │   ├── setup.iss              # Inno Setup Windows 11 Installer script
 │   ├── install_windows11.ps1   # PowerShell automated Windows 11 installer

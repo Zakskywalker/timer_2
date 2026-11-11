@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Timer2.App.Services;
 using Timer2.App.UI;
 using Timer2.Core.Calculations;
 using Timer2.Core.Database;
@@ -18,6 +19,8 @@ namespace Timer2.App.Forms
         private readonly ConfigManager _configManager;
         private AppConfig _config;
         private ILogManager _logManager;
+        private ChromeActivityRecorder _chromeActivityRecorder;
+        private ChromeActivityForm _chromeActivityForm;
         private System.Windows.Forms.Timer _tickTimer;
         private System.Windows.Forms.Timer _checkpointTimer;
 
@@ -42,6 +45,7 @@ namespace Timer2.App.Forms
         private Button btnTotal;
         private Button btnAddModifyTime;
         private Button btnLogViewer;
+        private Button btnChromeActivity;
 
         private Label lblLog;
         private RichTextBox rtbConsole;
@@ -76,6 +80,7 @@ namespace Timer2.App.Forms
             this.StartPosition = FormStartPosition.CenterScreen;
 
             _logManager = new LogManager(_config.OutputDirectory, _config.SaveCustomLocation);
+            _chromeActivityRecorder = new ChromeActivityRecorder(new Timer2.Core.Storage.ChromeActivityLog(_logManager));
 
             InitializeComponent();
             ThemeManager.ApplyTheme(this, _config.Theme);
@@ -248,6 +253,14 @@ namespace Timer2.App.Forms
             };
             this.Controls.Add(rtbConsole);
 
+            btnChromeActivity = new Button
+            {
+                Text = "Google Chrome Activity",
+                Font = new Font("Segoe UI", 8.5f, FontStyle.Bold)
+            };
+            btnChromeActivity.Click += (s, e) => OpenChromeActivity();
+            this.Controls.Add(btnChromeActivity);
+
             // Copy Bar & Reload Button under Log
             pnlCopyBar = new Panel
             {
@@ -381,11 +394,18 @@ namespace Timer2.App.Forms
             curY += lblLog.Height + 4;
 
             // RichTextBox - responsive height and width
-            int availableHeight = pnlCopyBar.Top - curY - 8;
-            int rtbHeight = Math.Max(75, Math.Min(160, availableHeight));
+            const int chromeButtonHeight = 28;
+            const int chromeButtonGap = 5;
+            int availableHeight = pnlCopyBar.Top - curY - 8 - chromeButtonHeight - chromeButtonGap;
+            int rtbHeight = Math.Max(40, Math.Min(160, availableHeight));
 
             rtbConsole.Location = new Point(pad, curY);
             rtbConsole.Size = new Size(clientW - pad * 2, rtbHeight);
+            btnChromeActivity.SetBounds(
+                pad,
+                rtbConsole.Bottom + chromeButtonGap,
+                Math.Min(210, clientW - pad * 2),
+                chromeButtonHeight);
 
             // Bottom bar responsive arrangement
             if (isPhoneBar)
@@ -429,6 +449,7 @@ namespace Timer2.App.Forms
             var trayStartStop = new ToolStripMenuItem("Start / Stop", null, (s, e) => BtnStartStop_Click(this, EventArgs.Empty));
             trayMenu.Items.Add(trayStartStop);
             trayMenu.Items.Add("Log Viewer", null, (s, e) => OpenLogViewer());
+            trayMenu.Items.Add("Google Chrome Activity", null, (s, e) => OpenChromeActivity());
             trayMenu.Items.Add("Database Sync...", null, (s, e) => OpenDbSyncComparison());
             trayMenu.Items.Add(new ToolStripSeparator());
             trayMenu.Items.Add("Exit", null, (s, e) => CloseApplication());
@@ -738,8 +759,27 @@ return centralTime.ToString("hh:mm:ss tt");
 
         private void OpenLogViewer()
         {
-            var form = new LogViewerSelectorForm(_logManager, _config.Theme);
+            var form = new LogViewerSelectorForm(_logManager, _chromeActivityRecorder.ActivityLog, _config.Theme);
             form.ShowDialog(this);
+        }
+
+        private void OpenChromeActivity()
+        {
+            if (_chromeActivityForm == null || _chromeActivityForm.IsDisposed)
+            {
+                _chromeActivityForm = new ChromeActivityForm(_chromeActivityRecorder, _config.Theme);
+            }
+
+            if (!_chromeActivityForm.Visible)
+            {
+                _chromeActivityForm.Show(this);
+            }
+            else
+            {
+                _chromeActivityForm.WindowState = FormWindowState.Normal;
+                _chromeActivityForm.BringToFront();
+                _chromeActivityForm.Activate();
+            }
         }
 
         private void OpenDbSyncComparison()
@@ -837,6 +877,18 @@ return centralTime.ToString("hh:mm:ss tt");
             if (_isRecording)
             {
                 StopTimer();
+            }
+            try
+            {
+                _chromeActivityRecorder.Dispose();
+            }
+            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
+            {
+                MessageBox.Show(
+                    $"Chrome activity recording could not be finalized:\r\n{ex.Message}",
+                    "Chrome Activity Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
             }
             trayIcon.Visible = false;
         }
