@@ -72,7 +72,7 @@ namespace Timer2.Tests
             Assert.Equal("Timer - Run 7: 5:36:16 | Total(Time): 5.60 hrs.", runningTooltip);
 
             string pausedTooltip = TimeCalculator.FormatTrayTooltip(7, run, total, true);
-            Assert.Equal("Timer - Run 7: 5:36:16 | Total(Time): 5.60 hrs.", pausedTooltip);
+            Assert.Equal("Timer - Run 7: Total(HMS): 05:36:16 | (PH): 5.60 hrs. [Paused]", pausedTooltip);
         }
     }
 }
