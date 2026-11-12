@@ -91,7 +91,8 @@ namespace Timer2.Core.Calculations
 
             string pausedSuffix = isPaused ? " [Paused]" : "";
             //return $"Timer - Run {runNumber}: {rH} Hrs. {rM} Min. {rS} Sec. | {totDec.ToString("0.00", CultureInfo.InvariantCulture)} hrs.{pausedSuffix} | Total Time is: {hours} Hrs. {minutes} Min. {seconds} Sec.  or (Rounded up): {dec.ToString("0.00", CultureInfo.InvariantCulture)} hrs.";
-            return $"Timer - Run {runNumber}: {rH}:{rM}:{rS} | Total(Time): {dec.ToString("0.00", CultureInfo.InvariantCulture)} hrs.";
+            return isPaused is false ? $"Timer - Run {runNumber}: {rH}:{rM}:{rS} | Total(Time): {dec.ToString("0.00", CultureInfo.InvariantCulture)} hrs." : 
+            $"Timer - Run {runNumber}: Total(HMS): {totalTime.ToString(@"hh\:mm\:ss")} | (PH): {dec.ToString("0.00", CultureInfo.InvariantCulture)} hrs. [Paused]";
 
         }
     }

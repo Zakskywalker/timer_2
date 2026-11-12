@@ -11,6 +11,7 @@ using Timer2.Core.Database;
 using Timer2.Core.Models;
 using Timer2.Core.Storage;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace Timer2.App.Forms
 {
@@ -470,6 +471,7 @@ namespace Timer2.App.Forms
         private void RecalculateDayTotals()
         {
             var todaySummary = _logManager.GetTodaySummary();
+            Debug.WriteLine($"Recalculated today's totals: {TimeCalculator.FormatHM(todaySummary.TotalTime, true)} ({TimeCalculator.FormatDecimalHours(todaySummary.TotalTime)})");
             _accumulatedDayTotalBeforeCurrent = todaySummary.TotalTime;
             _currentRunNumber = todaySummary.Entries.Count + 1;
         }
@@ -622,6 +624,7 @@ namespace Timer2.App.Forms
             TimeSpan total = _accumulatedDayTotalBeforeCurrent + currentRun;
 
             string tooltip = TimeCalculator.FormatTrayTooltip(_currentRunNumber, currentRun, total, !_isRecording);
+            Debug.WriteLine($"Updating tray tooltip: {tooltip}");
             if (tooltip.Length >= 64)
             {
                 tooltip = tooltip.Substring(0, 63);
@@ -667,6 +670,7 @@ namespace Timer2.App.Forms
             string startLine = _isRecording ? $"*Start Time: {_currentStartTime}" : "*Timer Idle / Paused";
             var todaySummary = _logManager.GetTodaySummary();
             rtbConsole.Text = $"{runLine}\r\n{totalLine}\r\n{startLine}\r\n";
+            rtbConsole.AppendText($"\r\n");
             foreach (var entry in todaySummary.Entries)
             {
                 var startStr = entry.StartTime.ToString("hh:mm:ss tt");

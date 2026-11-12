@@ -221,7 +221,7 @@
     "C:\\Users\\zaksk\\.nuget\\packages\\": {}
   },
   "project": {
-    "version": "1.0.0",
+    "version": "2.0.0",
     "restore": {
       "projectUniqueName": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\src\\Timer2.App\\Timer2.App.csproj",
       "projectName": "Timer2.App",

@@ -35,8 +35,15 @@ namespace Timer2.App.Forms
         {
             InitializeComponent(rawConsoleText, logDirectory, timeLogPath);
             ApplyStyling(themeName);
+            this.FormClosing += shutdownNotificationModal_FormClosing;
         }
-
+    private void shutdownNotificationModal_FormClosing(object sender, FormClosingEventArgs e)
+    {
+        if (e.CloseReason == CloseReason.UserClosing)
+        {
+           Application.Exit();
+        }
+    }
         private void InitializeComponent(string rawConsoleText, string logDirectory, string timeLogPath)
         {
             this.Text = "Time Recorder 2.0 — Application Shutdown Notice";

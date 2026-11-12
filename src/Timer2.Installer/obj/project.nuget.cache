@@ -1,13 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "nRIwY7nn2mI=",
+  "dgSpecHash": "FVjLAxnB61U=",
   "success": true,
   "projectFilePath": "C:\\Users\\zaksk\\Documents\\GitHub\\timer_2\\src\\Timer2.Installer\\Timer2.Installer.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.net.illink.tasks\\10.0.14\\microsoft.net.illink.tasks.10.0.14.nupkg.sha512",
-    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\10.0.14\\microsoft.netcore.app.runtime.win-x64.10.0.14.nupkg.sha512",
-    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\10.0.14\\microsoft.windowsdesktop.app.runtime.win-x64.10.0.14.nupkg.sha512",
-    "C:\\Users\\zaksk\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\10.0.14\\microsoft.aspnetcore.app.runtime.win-x64.10.0.14.nupkg.sha512"
-  ],
+  "expectedPackageFiles": [],
   "logs": []
 }
